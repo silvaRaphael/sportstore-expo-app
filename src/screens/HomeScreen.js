@@ -1,11 +1,11 @@
 import React from 'react';
 import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Text, View, SafeAreaView, TouchableOpacity, Dimensions, Image, ScrollView, Animated } from 'react-native';
+import { Text, View, SafeAreaView, TouchableOpacity, Dimensions, Image, ScrollView, Animated, TextInput } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { ballProducts, soccerShoesProducts } from '../api';
+import * as API from '../api';
 
 import ProductCard from '../components/ProductCard';
 
@@ -13,10 +13,62 @@ const HomeScreen = ({ navigation }) => {
 
   const { width } = Dimensions.get("window");
 
+  const [ ballProducts, setBallProducts ] = React.useState(API.ballProducts);
+  const [ soccerShoesProducts, setSoccerShoesProducts ] = React.useState(API.soccerShoesProducts);
+
   const [ category, setCategory ] = React.useState(0);
+  const [ searchBarActive, setSearchBarActive ] = React.useState(false);
+  const [ searchText, setSearchText ] = React.useState("");
+
+  const ref = React.useRef(null);
 
   const scrollXSoccerBall = React.useRef(new Animated.Value(0)).current;
   const scrollXSoccerShoe = React.useRef(new Animated.Value(0)).current;
+
+  function resetProducts() {
+    setBallProducts(API.ballProducts)
+    setSoccerShoesProducts(API.soccerShoesProducts)
+  }
+  
+  function filter(text) {
+
+    if(text == "" || text == null) {
+      setSearchBarActive(false)
+      setSearchText("")
+      resetProducts()
+
+      return
+    }
+
+    text = text.toLowerCase()
+
+    let category1 = API.ballProducts
+    let category2 = API.soccerShoesProducts
+
+    let v1 = category1.filter(item => {
+      let name1 = item.name.toLowerCase()
+      let type1 = item.type.toLowerCase()
+      let brand1 = item.color.name.toLowerCase()
+
+      const regex1 = RegExp(text + "*", 'g');
+      let searchResult1 = regex1.exec(name1 + type1 + brand1)
+
+      return searchResult1 != null && item
+    })
+    setBallProducts(v1)
+
+    let v2 = category2.filter(item => {
+      let name2 = item.name.toLowerCase()
+      let type2 = item.type.toLowerCase()
+      let brand2 = item.color.name.toLowerCase()
+
+      const regex2 = RegExp(text + "*", 'g');
+      let searchResult2 = regex2.exec(name2 + type2 + brand2)
+
+      return searchResult2 != null && item
+    })
+    setSoccerShoesProducts(v2)
+  }
   
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -34,18 +86,42 @@ const HomeScreen = ({ navigation }) => {
           style={{
             fontWeight: "bold",
             fontStyle: "italic",
-            fontSize: 36,
+            fontSize: 34,
             color: "#333"
           }}
         >
           Sports Store
         </Text>
+
+        <TextInput
+          placeholder="Search Product"
+          placeholderTextColor="#777"
+          ref={ref}
+          onBlur={() =>setSearchBarActive(!searchBarActive)}
+          onChangeText={text => setSearchText(text)}
+          onSubmitEditing={() => filter(searchText)}
+          value={searchText}
+          style={{
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: "#999",
+            paddingHorizontal: 12,
+            color: "#333",
+            display: searchBarActive ? "flex" : "none",
+          }}
+        />
         <TouchableOpacity
           style={{
             justifyContent: "center",
             alignItems: "center",
             width: 48,
-            height: 48
+            height: 48,
+            display: searchBarActive ? "none" : null
+          }}
+          onPress={() => {
+            setSearchBarActive(!searchBarActive)
+            setSearchText("")
+            ref.current.focus()
           }}
         >
           <FontAwesome name="search" size={18} color="gray" />
@@ -73,6 +149,7 @@ const HomeScreen = ({ navigation }) => {
               <TouchableOpacity
                 onPress={() => {
                   setCategory(0)
+                  resetProducts()
                 }}
                 style={{
                   flexDirection: "row",
@@ -145,7 +222,7 @@ const HomeScreen = ({ navigation }) => {
         {/* /Category Section */}
 
         {/* Product Section */}
-        {category == 0 || category == 1 ? (
+        {category == 0 || category == 1 && ballProducts.length > 0 ? (
           <>
             <View style={{ height: width / 2 + 80 }}>
               <ScrollView
@@ -227,7 +304,7 @@ const HomeScreen = ({ navigation }) => {
           </>
         ) : null }
 
-        {category == 0 || category == 2 ? (
+        {category == 0 || category == 2 && soccerShoesProducts.length > 0 ? (
           <>
             <View style={{ height: width / 2 + 80 }}>
               <ScrollView

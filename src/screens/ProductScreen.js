@@ -151,7 +151,6 @@ const ProductScreen = ({ navigation, route }) => {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            // marginTop: 80,
           }}
         >
           <View
