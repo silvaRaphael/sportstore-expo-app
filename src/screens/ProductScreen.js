@@ -1,5 +1,5 @@
 import React from 'react';
-import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { Text, View, SafeAreaView, TouchableOpacity, Dimensions, Image, ScrollView, Animated, Alert } from 'react-native';
 
 import { ballProducts, soccerShoesProducts } from '../api';
@@ -99,7 +99,7 @@ const ProductScreen = ({ navigation, route }) => {
           justifyContent: "space-evenly",
         }}
       >
-        <View style={{}} >
+        <View>
           <Text
             style={{
               fontWeight: "normal",
